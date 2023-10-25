@@ -1,0 +1,55 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+\usepackage{amsmath}
+
+\title{MATH 550 Project 1 Notes}
+\author{Ben Longaker and Jacob Hofer}
+\date{October 2023}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+The nondimensionalized time-dependent Schr\"{o}dinger equation is defined as
+$$i\frac{\partial\Psi}{\partial t} = -\frac{1}{2} \frac{\partial^2 \Psi}{\partial x^2} + V(x)\Psi(x,t),$$
+where $0<x<L$, $t>0$, and we have the boundary and initial conditions,
+$$\Psi(0,t) = \Psi(L,t) = 0, \qquad \qquad \Psi(x,0) = \psi_0(x).$$
+In order to solve this problem, from introductory PDEs, we use separation of variables to obtain the time-independent equation and the time-evolution equation:
+\begin{equation}
+    -\frac{1}{2}\psi''(x) + V(x)\psi(x) = \mathbf{H}\psi(x) = E\psi(x) \label{eq:TIS}
+\end{equation}
+\begin{equation}
+    T'(t) = iET(t) \label{time}
+\end{equation}
+The analytical solution for \eqref{time} is simply $T(t) = Ce^{iEt}$. Equation \eqref{eq:TIS} is an eigenvalue problem, where $H$ is the Hamiltonian operator,
+\begin{equation}
+    \mathbf{H} := -\frac{1}{2}\frac{d^2}{dx^2} + V(x), \label{eq:H}
+\end{equation}
+and $E$ are the energy eigenvalues. From Trefethen's book, the way to go solve these problems numerically is to find a suitable discretization for the operator $H$, then numerically compute the eigenvalues and eigenfunctions, written as $E_j$ and $\psi_j$. Then from PDEs, the equation solution is given by
+\begin{equation}
+    \Psi(x,t) = \sum_{j=1}^N c_j \psi_j(x) e^{iE_jt}, \label{soln}
+\end{equation}
+where the $c_j$ are determined using the properties of orthogonality. According to the video (why?), this is determined by
+\begin{equation}
+    c_j = \int_{-\infty}^{\infty} \psi_0(x)\psi_j^*(x) \ dx. \label{coefficients}
+\end{equation}
+I think we have to use arguments from vector spaces to obtain these coefficients.
+
+\section{Discretization of Hamiltonian and Algorithm}
+Next we must discretize the operator $H$. Let $D_N$ be the Chebyshev differentation matrix. Then our discretized operator is given by
+\begin{equation}
+    \hat{\mathbf{H}} = -\frac{1}{2}D_N^2 + \text{diag}(V(x)), \label{H_disc}
+\end{equation}
+where $V(x)$ is the potential function evaluated at the Chebyshev grid points. Our algorithm is as follows:
+\begin{enumerate}
+    \item Define the Chebyshev matrix and grid points using \texttt{cheb.m}.
+    \item Construct the discretized Hamiltonian operator given by \eqref{H_disc}.
+    \item Compute the eigenfunctions and eigenvalues of $\hat{\mathbf{H}}$ using MATLAB's built-in function \texttt{eig}.
+    \item Compute the $c_j$ coefficients using the initial condition and the eigenfunctions with \eqref{coefficients}.
+    \item Construct the solution using the formula given by \eqref{soln}.
+\end{enumerate}
+The one other part to consider is that we need to normalize the wave function at each time step. To compute the probability of the location of the particle, we compute
+$$P(x,t) = |\Psi(x,t)|^2.$$
+\end{document}
