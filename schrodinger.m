@@ -1,3 +1,5 @@
+close all;
+
 % Initialize variables
 N = 64; L = 20; [D,x] = cheb(N);
 x = x*L; D2 = D^2; D2 = D2(2:N,2:N);
@@ -16,19 +18,24 @@ H = -0.5*D2 + diag(V);
 [P,DD] = eig(H);
 [E,ind] = sort(diag(DD));
 P = P(:,ind);
+%%
 % Columns of P are eigenfunctions and E is a vector of energy eigenvalues.
 
 % Normalize the eigenfunctions (each integrates to 1)
 % WHY IS THIS NOT WORKING?!?!?
-% for i=1:N-1
+for i=1:N-1
 %     int_val = w * ([0;P(:,i);0].*[0;conj(P(:,i));0]);
-%     P(:,i) = P(:,i)/int_val;
-% end
+    int_val = nonUniformTrap(x,[0;P(:,i);0].*[0;conj(P(:,i));0]);
+%     int_val = trapz(x,-[0;P(:,i);0]);
+    P(:,i) = P(:,i)/int_val;
+end
 
+%%
 % Compute c_j coefficients
 c = zeros(N-1,1);
 for i=1:N-1
-    c(i) = w * ([0;psi0(2:N);0] .* [0;conj(P(:,i));0]);
+%     c(i) = w * ([0;psi0(2:N);0] .* [0;conj(P(:,i));0]);
+    c(i) = dot([0;psi0(2:N);0], [0;conj(P(:,i));0]);
 end
 
 % Construct solution
@@ -51,15 +58,15 @@ for i=1:4
 end
 legend('$n=1$','$n=2$','$n=3$','$n=4$',Interpreter='latex')
 
-%%
-
-figure
-hold on
-xx = linspace(-1,1,1000);
-uu = polyval(polyfit(x,psi0,N),xx);
-plot(xx,uu,'LineWidth',2);
-scatter(x,psi0);
-
+% %%
+% 
+% figure
+% hold on
+% xx = linspace(-1,1,1000);
+% uu = polyval(polyfit(x,psi0,N),xx);
+% plot(xx,uu,'LineWidth',2);
+% scatter(x,psi0);
+% 
 %%
 
 figure
