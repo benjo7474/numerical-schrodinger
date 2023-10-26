@@ -5,7 +5,8 @@ x = x*L; D2 = D^2; D2 = D2(2:N,2:N);
 
 % Initial condition
 psi0 = exp(-0.1*x.^2); psi0(1)=0; psi0(N+1)=0;
-psi0 = psi0/(w*psi0);
+% psi0 = psi0/(w*psi0);
+psi0 = psi0/nonUniformTrap(x,psi0);
 
 % Construct Hamiltonian operator
 V = x.^2; V = V(2:N); % Arbitrary potential
