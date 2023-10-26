@@ -8,7 +8,7 @@ x = x*L; D2 = D^2; D2 = D2(2:N,2:N);
 % Initial condition
 psi0 = exp(-0.1*x.^2); psi0(1)=0; psi0(N+1)=0;
 % psi0 = psi0/(w*psi0);
-psi0 = psi0/nonUniformTrap(x,psi0);
+psi0 = psi0/nonUniformTrap(x,psi0.*psi0);
 
 % Construct Hamiltonian operator
 V = x.^2; V = V(2:N); % Arbitrary potential
@@ -21,7 +21,7 @@ P = P(:,ind);
 %%
 % Columns of P are eigenfunctions and E is a vector of energy eigenvalues.
 
-% Normalize the eigenfunctions (each integrates to 1)
+% Normalize the eigenfunctions (each squared integrates to 1)
 % WHY IS THIS NOT WORKING?!?!?
 for i=1:N-1
 %     int_val = w * ([0;P(:,i);0].*[0;conj(P(:,i));0]);
@@ -35,7 +35,8 @@ end
 c = zeros(N-1,1);
 for i=1:N-1
 %     c(i) = w * ([0;psi0(2:N);0] .* [0;conj(P(:,i));0]);
-    c(i) = dot([0;psi0(2:N);0], [0;conj(P(:,i));0]);
+%     c(i) = dot([0;psi0(2:N);0], [0;conj(P(:,i));0]);
+    c(i)=nonUniformTrap(x,([0;psi0(2:N);0] .* [0;conj(P(:,i));0]));
 end
 
 % Construct solution
@@ -72,7 +73,7 @@ legend('$n=1$','$n=2$','$n=3$','$n=4$',Interpreter='latex')
 figure
 for i=1:tsteps+1
     plot(x, abs(soln(i,:)).^2, LineWidth=2);
-    ylim([-1,1]);
+    ylim([-.1,.1]);
     title(['$t=',num2str(tvec(i)),'$'],'Interpreter','latex')
     drawnow;
     pause(0.02);
