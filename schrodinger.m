@@ -1,21 +1,25 @@
 %% Solve system
 
-close all;
+clear; close all;
 
 % Initialize variables
-N = 256; L = 20; [D,x] = cheb(N);
+N = 256; L = 10; [D,x] = cheb(N);
 x = x*L; D2 = D^2; D2 = D2(2:N,2:N);
 [~,w] = clencurt(N); w = w*L;
 
-% Initial condition
-% psi0 = exp(-0.1*x.^2); psi0(1)=0; psi0(N+1)=0;
-psi0 = exp(-0.1*(x-5).^2) + exp(-0.1*(x+5).^2);
-psi0 = psi0/sqrt(w*psi0);
+% Specify initial condition and potential function
+psi0 = exp(-(x+5).^2/2).*exp(-1i*1.*x); % IC
+% psi0 = exp(-(x+5).^2/2);
+% V = 30*exp(-0.5*(x-10).^2) + 30*exp(-0.5*(x+10).^2); % V
+% V = 0.5*x.^2;
+% V = zeros(N+1);
+V = 10*pot(x);
+
+% Make sure IC is normalized
+psi0 = psi0/sqrt(w*(abs(psi0).^2));
 % psi0 = psi0/sqrt(nonUniformTrap(x,psi0.*psi0));
 
 % Construct Hamiltonian operator
-% V = 0.5*x.^2;  % Arbitrary potential
-V = zeros(N+1);
 V = V(2:N);
 H = -0.5*D2 + diag(V);
 
@@ -37,12 +41,12 @@ end
 c = zeros(N-1,1);
 for i=1:N-1
     c(i) = w * ([0;psi0(2:N);0] .* [0;conj(P(:,i));0]);
-%     c(i) = dot([0;psi0(2:N);0], [0;conj(P(:,i));0]);
+    % c(i) = dot([0;psi0(2:N);0], [0;conj(P(:,i));0]);
     % c(i)=nonUniformTrap(x,([0;psi0(2:N);0] .* [0;conj(P(:,i));0]));
 end
 
 % Construct solution
-dt = 0.005; tf = 5; tvec = 0:dt:tf;
+dt = 0.0001; tf = 0.25; tvec = 0:dt:tf;
 tsteps = tf/dt;
 soln = zeros(N+1,tsteps+1);
 soln(:,1) = psi0;
@@ -70,16 +74,39 @@ uu = polyval(polyfit(x,psi0,N),xx);
 plot(xx,uu,'LineWidth',2);
 scatter(x,psi0);
 
+%% Plot potential
+figure
+plot(x(2:N), V, '-r', 'LineWidth', 2);
+title('Potential', 'FontSize', 16)
+xlabel('$x$', 'Interpreter', 'latex', 'FontSize', 16);
+ylabel('$V(x)$', 'Interpreter', 'latex', 'FontSize', 16);
+
 %% Animiation of solution
 
 figure
 ymax = max(abs(soln).^2, [], 'all');
 for i=1:tsteps+1
     plot(x, abs(soln(i,:)).^2, LineWidth=2);
+    hold on
+    plot(x(2:N), 0.01*V, '-r')
+    hold off
     ylim([-0.1*ymax, 1.1*ymax]);
     xlabel('$x$', 'Interpreter', 'latex', 'FontSize', 16)
     ylabel('$p(x,t)$', 'Interpreter', 'latex', 'FontSize', 16)
-    title(['$t=',num2str(tvec(i), '%0.4f'),'$'],'Interpreter','latex', 'FontSize', 16)
+    title(['Probability of particle location at $t=',num2str(tvec(i), '%0.4f'),'$'],'Interpreter','latex', 'FontSize', 16)
     drawnow;
     pause(0.005);
+end
+
+%%
+
+function V = pot(x)
+    V = zeros(1, length(x));
+    for i = 1:length(x)
+        if (x(i) >= -2) && (x(i) <= 2)
+            V(i) = 4;
+        elseif x(i) > 2
+            V(i) = 1;
+        end
+    end
 end
