@@ -66,13 +66,13 @@ end
 legend('$n=1$','$n=2$','$n=3$','$n=4$',Interpreter='latex')
 
 %% Plot initial condition
-
-figure
-hold on
-xx = linspace(-1,1,1000);
-uu = polyval(polyfit(x,psi0,N),xx);
-plot(xx,uu,'LineWidth',2);
-scatter(x,psi0);
+% 
+% figure
+% hold on
+% xx = linspace(-1,1,1000);
+% uu = polyval(polyfit(x,psi0,N),xx);
+% plot(xx,uu,'LineWidth',2);
+% scatter(x,psi0);
 
 %% Plot potential
 figure
@@ -95,7 +95,7 @@ for i=1:tsteps+1
     ylabel('$p(x,t)$', 'Interpreter', 'latex', 'FontSize', 16)
     title(['Probability of particle location at $t=',num2str(tvec(i), '%0.4f'),'$'],'Interpreter','latex', 'FontSize', 16)
     drawnow;
-    pause(0.005);
+%     pause(0.005);
 end
 
 %%
