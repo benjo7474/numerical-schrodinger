@@ -46,7 +46,7 @@ for i=1:N-1
 end
 
 % Construct solution
-dt = 0.0001; tf = 0.25; tvec = 0:dt:tf;
+dt = 0.001; tf = 0.25; tvec = 0:dt:tf;
 tsteps = tf/dt;
 soln = zeros(N+1,tsteps+1);
 soln(:,1) = psi0;
@@ -96,6 +96,51 @@ for i=1:tsteps+1
     title(['Probability of particle location at $t=',num2str(tvec(i), '%0.4f'),'$'],'Interpreter','latex', 'FontSize', 16)
     drawnow;
 %     pause(0.005);
+end
+
+%% Complex animiation of solution
+% close all;
+figure
+ymax = 1.5*max(abs(soln).^2, [], 'all');
+for i=1:tsteps+1
+    hold off
+    plot3(x, imag(soln(i,:)),real(soln(i,:)), LineWidth=3);
+%     scatter3(x, real(soln(i,:)), imag(soln(i,:)),'filled');
+    hold on
+    plot3(x(2:N), zeros(length(V)), 0.01*V,'-r',lineWidth=2);
+    hold off
+    ylim([-1.1*ymax, 1.1*ymax]);
+    zlim([-1.1*ymax, 1.1*ymax]);
+    xlabel('$x$', 'Interpreter', 'latex', 'FontSize', 16)
+    ylabel('Imaginary', 'Interpreter', 'latex', 'FontSize', 16)
+    zlabel('Real', 'Interpreter', 'latex', 'FontSize', 16)
+    title(['Wave function at $t=',num2str(tvec(i), '%0.4f'),'$'],'Interpreter','latex', 'FontSize', 16)
+%     drawnow;
+    exportgraphics(gcf,'new3dcurvewpotential.gif','Append',true);
+
+%     pause(0.005);
+end
+
+
+%%
+
+ymax = max(abs(soln).^2, [], 'all');
+figure;
+for i = 1:tsteps + 1
+
+
+    % Plot the probability distribution
+    plot(x, abs(soln(i, :)).^2, 'LineWidth', 2);
+    hold on
+    plot(x(2:N), 0.01 * V, '-r')
+    hold off
+    ylim([-0.1 * ymax, 1.1 * ymax]);
+    xlabel('$x$', 'Interpreter', 'latex', 'FontSize', 16)
+    ylabel('$p(x,t)$', 'Interpreter', 'latex', 'FontSize', 16)
+    title(['Probability of particle location at $t=', num2str(tvec(i), '%0.4f'), '$'], 'Interpreter', 'latex', 'FontSize', 16)
+    
+    exportgraphics(gcf,'testAnimated.gif','Append',true);
+
 end
 
 %%
