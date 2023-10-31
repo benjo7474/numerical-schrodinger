@@ -3,17 +3,19 @@
 clear; close all;
 
 % Initialize variables
-N = 256; L = 10; [D,x] = cheb(N);
+N = 256; L = 5; [D,x] = cheb(N);
 D = D/L; x = x*L; D2 = D^2; D2 = D2(2:N,2:N); 
 [~,w] = clencurt(N); w = w*L;
 
 % Specify initial condition and potential function
-% psi0 = exp(-(x+5).^2/2).*exp(-1i*1.*x); % IC
-psi0 = exp(-(x).^2/2);
+% psi0 = exp(-(x+5).^2/2).*exp(-1i*1.*x) + exp(-(x-5).^2/2).*exp(1i*1.*x); % IC
+psi0 = exp(-(x+2).^2/2).*exp(-1i*2.*x);
+% psi0 = exp(-(x).^2/2);
 % V = 30*exp(-0.5*(x-10).^2) + 30*exp(-0.5*(x+10).^2); % V
 % V = 0.5*x.^2;
-V = zeros(N+1);
+% V = zeros(N+1);
 % V = 0.1*pot(x);
+V = 0.1*x.^4 - 1.5*x.^2;
 
 % Make sure IC is normalized
 psi0 = psi0/sqrt(w*(abs(psi0).^2));
@@ -46,7 +48,7 @@ for i=1:N-1
 end
 
 % Construct solution
-dt = 0.05; tf = 100; tvec = 0:dt:tf;
+dt = 0.05; tf = 10; tvec = 0:dt:tf;
 tsteps = tf/dt;
 soln = zeros(N+1,tsteps+1);
 soln(:,1) = psi0;
@@ -78,6 +80,11 @@ xlabel('$x$')
 ylabel('$\psi_n(x)$')
 title('Eigenfunctions for Infinite Square Well')
 
+% eigfun1 = -sqrt(1/(2*gamma(5/4)))*exp(-0.5*x.^2);
+% eigfun2 = -sqrt(1/(2*gamma(3/4)))*(2*x).*exp(-0.5*x.^2);
+% plot(x,eigfun2);
+
+
 %% Plot initial condition
 % 
 % figure
@@ -96,29 +103,31 @@ ylabel('$V(x)$', 'Interpreter', 'latex', 'FontSize', 16);
 
 %% Plot eigenvalues
 figure
-n = 1:10;
-xx = linspace(0,10.5,1000);
-uu = pi^2/(8*L^2)*xx.^2;
+n = 0:9;
+xx = linspace(-1,9.5,1000);
+uu = xx+0.5;
 hold on
 plot(xx,uu,'Color','#38cfc2');
-scatter(n, E(n), 200, 'k', 'filled');
-legend('$n^2\pi^2/(8L^2)$','$E_n$ (numerical)','Location','northwest','FontSize',40)
-title('Eigenvalues for Infinite Square Well')
+scatter(n, E(n+1), 200, 'k', 'filled');
+legend('$n+\frac{1}{2}$','$E_n$','Location','northwest','FontSize',40)
+title('Eigenvalues for Harmonic Oscillator')
+xlabel('$n$')
+ylabel('$E(n)$')
 
 %% Animiation of solution
 
-figure
 ymax = max(abs(soln).^2, [], 'all');
 for i=1:tsteps+1
-    plot(x, abs(soln(i,:)).^2, LineWidth=2);
+    plot(x, abs(soln(i,:)).^2);
     hold on
-    plot(x(2:N), 0.01*V, '-r')
+    plot(x(2:N), 0.1*V+0.5, '-r', LineWidth=2)
     hold off
     ylim([-0.1*ymax, 1.1*ymax]);
     xlabel('$x$')
     ylabel('$p(x,t)$')
     title(['Probability of particle location at $t=',num2str(tvec(i), '%0.4f'),'$'])
-    drawnow;
+    % drawnow;
+    exportgraphics(gcf,'double-well.gif','Append',true);
     % pause(0.005);
 end
 
@@ -140,7 +149,7 @@ for i=1:tsteps+1
     zlabel('Real', 'Interpreter', 'latex', 'FontSize', 16)
     title(['Wave function at $t=',num2str(tvec(i), '%0.4f'),'$'],'Interpreter','latex', 'FontSize', 16)
     drawnow;
-    % exportgraphics(gcf,'new3dcurvewpotential.gif','Append',true);
+    % exportgraphics(gcf,'harmonic-oscillator.gif','Append',true);
 
 %     pause(0.005);
 end
